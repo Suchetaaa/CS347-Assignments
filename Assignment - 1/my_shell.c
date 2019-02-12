@@ -9,6 +9,7 @@
 #define MAX_NUM_TOKENS 64
 
 void my_shell_cd(char **Tokens);
+int my_shell_ls(char **Tokens);
 int my_shell_others(char **Tokens);
 
 /* Splits the string by space and returns the array of tokens
@@ -47,7 +48,7 @@ void my_shell_cd(char **Tokens)
 	//printf("%s\n", "Reached checkpoint 1");
 	if (Tokens[1] == NULL) 
 	{
-		perror("Argument not specified");
+		printf("%s\n", "Shell: Incorrect command");
 	}
 	else
 	{
@@ -66,30 +67,79 @@ void my_shell_cd(char **Tokens)
 	}
 }
 
+int my_shell_ls(char **Tokens)
+{
+	bool stop = 0;
+	if (Tokens[1] != NULL) 
+		{
+			stop = 1;
+			printf("%s\n", "Shell: Incorrect command" );
+
+		}
+
+	if (!stop)
+	{
+		pid_t check;
+		check = fork();
+
+		if (check == 0) 
+		{
+			int check_exec;
+			check_exec = execvp(Tokens[0], Tokens);
+			if (check_exec == -1) perror("Exec failed");
+			exit(0);
+		}
+
+		if (check == -1)
+		{
+			perror("Fork failure");
+			exit(EXIT_FAILURE);
+		}
+
+		else
+		{
+			wait(NULL);
+		}
+	}
+	
+	return 0;
+}
+
 int my_shell_others(char **Tokens)
 {
-	pid_t check;
-	check = fork();
+	bool stop = 0;
+	if (Tokens[1] == NULL) 
+		{
+			stop = 1;
+			printf("%s\n", "Shell: Incorrect command" );
 
-	if (check == 0) 
+		}
+
+	if (!stop)
 	{
-		int check_exec;
-		check_exec = execvp(Tokens[0], Tokens);
-		if (check_exec == -1) perror("Exec failed");
-		exit(0);
-	}
+		pid_t check;
+		check = fork();
 
-	if (check == -1)
-	{
-		perror("Fork failure");
-		exit(EXIT_FAILURE);
-	}
+		if (check == 0) 
+		{
+			int check_exec;
+			check_exec = execvp(Tokens[0], Tokens);
+			if (check_exec == -1) perror("Exec failed");
+			exit(0);
+		}
 
-	else
-	{
-		wait(NULL);
-	}
+		if (check == -1)
+		{
+			perror("Fork failure");
+			exit(EXIT_FAILURE);
+		}
 
+		else
+		{
+			wait(NULL);
+		}
+	}
+	
 	return 0;
 }
 
@@ -122,7 +172,7 @@ int main(int argc, char* argv[]) {
 			getchar();
 		}
 		//printf("Command entered: %s\n", line);
-		
+
 		/* END: TAKING INPUT */
 
 		line[strlen(line)] = '\n'; //terminate with new line
@@ -131,13 +181,13 @@ int main(int argc, char* argv[]) {
        //do whatever you want with the commands, here we just print them
 
 		if (strcmp(tokens[0], "cd") == 0) my_shell_cd(tokens);
-		else if (strcmp(tokens[0], "ls") == 0) my_shell_others(tokens);
+		else if (strcmp(tokens[0], "ls") == 0) my_shell_ls(tokens);
 		else if (strcmp(tokens[0], "cat") == 0) my_shell_others(tokens);
 		else if (strcmp(tokens[0], "sleep") == 0) my_shell_others(tokens);
 		else if (strcmp(tokens[0], "echo") == 0) my_shell_others(tokens);
 		else 
 		{
-			printf("%s\n", "Command not found" );
+			printf("%s\n", "Shell: Incorrect command" );
 		}
 
 
