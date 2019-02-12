@@ -143,6 +143,8 @@ int my_shell_others(char **Tokens)
 	return 0;
 }
 
+typedef int (*f)(char **Tokens);
+f funcs[5] = {&my_shell_ls, &my_shell_cd, &my_shell_others};
 
 int main(int argc, char* argv[]) {
 	char  line[MAX_INPUT_SIZE];            
@@ -180,7 +182,36 @@ int main(int argc, char* argv[]) {
    
        //do whatever you want with the commands, here we just print them
 
-		if (strcmp(tokens[0], "cd") == 0) my_shell_cd(tokens);
+		if (
+			( ( (strcmp(tokens[0], "cd") == 0) || (strcmp(tokens[0], "echo") == 0) || (strcmp(tokens[0], "cat") == 0) || (strcmp(tokens[0], "sleep") == 0) ) && 
+				(strcmp(tokens[2], "&&&") == 0) ) 
+			|| 
+			( (strcmp(tokens[0], "ls") == 0) && (strcmp(tokens[1], "&&&") == 0) ) 
+			)
+		{
+			
+		}
+
+		if (
+			( ( (strcmp(tokens[0], "cd") == 0) || (strcmp(tokens[0], "echo") == 0) || (strcmp(tokens[0], "cat") == 0) || (strcmp(tokens[0], "sleep") == 0) ) && 
+				(strcmp(tokens[2], "&&") == 0) ) 
+			|| 
+			( (strcmp(tokens[0], "ls") == 0) && (strcmp(tokens[1], "&&") == 0) ) 
+			)
+		{
+			
+		}
+
+		if (
+			( ( (strcmp(tokens[0], "cd") == 0) || (strcmp(tokens[0], "echo") == 0) || (strcmp(tokens[0], "cat") == 0) || (strcmp(tokens[0], "sleep") == 0) ) && 
+				(strcmp(tokens[2], "&") == 0) ) 
+			|| 
+			( (strcmp(tokens[0], "ls") == 0) && (strcmp(tokens[1], "&") == 0) ) 
+			)
+		{
+			
+		}
+		else if (strcmp(tokens[0], "cd") == 0) my_shell_cd(tokens);
 		else if (strcmp(tokens[0], "ls") == 0) my_shell_ls(tokens);
 		else if (strcmp(tokens[0], "cat") == 0) my_shell_others(tokens);
 		else if (strcmp(tokens[0], "sleep") == 0) my_shell_others(tokens);
