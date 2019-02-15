@@ -8,9 +8,9 @@
 #define MAX_TOKEN_SIZE 64
 #define MAX_NUM_TOKENS 64
 
-int my_shell_cd(char **Tokens);
-int my_shell_ls(char **Tokens);
-int my_shell_others(char **Tokens);
+int my_shell_cd(char **Tokens, int background);
+int my_shell_ls(char **Tokens, int background);
+int my_shell_others(char **Tokens, int background);
 
 /* Splits the string by space and returns the array of tokens
 *
@@ -42,7 +42,7 @@ char **tokenize(char *line)
   return tokens;
 }
 
-int my_shell_cd(char **Tokens)
+int my_shell_cd(char **Tokens, int background)
 {
 	
 	//printf("%s\n", "Reached checkpoint 1");
@@ -68,7 +68,7 @@ int my_shell_cd(char **Tokens)
 	return 0;
 }
 
-int my_shell_ls(char **Tokens)
+int my_shell_ls(char **Tokens, int background)
 {
 	bool stop = 0;
 	if (Tokens[1] != NULL) 
@@ -88,6 +88,7 @@ int my_shell_ls(char **Tokens)
 			int check_exec;
 			check_exec = execvp(Tokens[0], Tokens);
 			if (check_exec == -1) perror("Exec failed");
+			else if (!background) printf("%s\n","Shell: Background process finished" );
 			exit(0);
 		}
 
@@ -99,14 +100,14 @@ int my_shell_ls(char **Tokens)
 
 		else
 		{
-			wait(NULL);
+			if (!background) wait(NULL);
 		}
 	}
 	
 	return 0;
 }
 
-int my_shell_others(char **Tokens)
+int my_shell_others(char **Tokens, int background)
 {
 	bool stop = 0;
 	if (Tokens[1] == NULL) 
@@ -129,6 +130,7 @@ int my_shell_others(char **Tokens)
 			check_exec = execvp(Tokens[0], (Tokens));
 			//printf("%d\n", check_exec );
 			if (check_exec == -1) perror("Exec failed");
+			else if (!background) printf("%s\n","Shell: Background process finished" );
 			exit(0);
 		}
 
@@ -140,7 +142,8 @@ int my_shell_others(char **Tokens)
 
 		else
 		{
-			wait(NULL);
+			if (!background) wait(NULL);
+			return 0;
 		}
 	}
 	
@@ -154,7 +157,7 @@ int commands_to_int(char *command)
 	return 3;
 }
 
-typedef int (*f)(char **Tokens);
+typedef int (*f)(char **Tokens, int background);
 f funcs[4] = {&my_shell_ls, &my_shell_cd, &my_shell_cd, &my_shell_others};
 
 int main(int argc, char* argv[]) {
@@ -184,6 +187,8 @@ int main(int argc, char* argv[]) {
 			scanf("%[^\n]", line);
 			getchar();
 		}
+
+		int background = 0;
 		//printf("Command entered: %s\n", line);
 
 		/* END: TAKING INPUT */
@@ -192,19 +197,60 @@ int main(int argc, char* argv[]) {
 		tokens = tokenize(line);
    
        //do whatever you want with the commands, here we just print them
-
-		// if (
-		// 	( ( (strcmp(tokens[0], "cd") == 0) || (strcmp(tokens[0], "echo") == 0) || (strcmp(tokens[0], "cat") == 0) || (strcmp(tokens[0], "sleep") == 0) ) && 
-		// 		(strcmp(tokens[2], "&&&") == 0) ) 
-		// 	|| 
-		// 	( (strcmp(tokens[0], "ls") == 0) && (strcmp(tokens[1], "&&&") == 0) ) 
-		// 	)
-		// {
-			
-		// }
-
-		int j = 0;
+		int j = 0, k = 0;
 		if (
+			( ( (strcmp(tokens[0], "cd") == 0) || (strcmp(tokens[0], "echo") == 0) || (strcmp(tokens[0], "cat") == 0) || (strcmp(tokens[0], "sleep") == 0) ) && 
+				(strcmp(tokens[2], "&&&") == 0) ) 
+			|| 
+			( (strcmp(tokens[0], "ls") == 0) && (strcmp(tokens[1], "&&&") == 0) ) 
+			)
+		{
+			while (tokens[0] != NULL)
+			{
+				// printf("%s\n", "Loop" );
+				int identifier = commands_to_int(tokens[0]);
+				tokens[0 + 1 + identifier%2] = NULL;
+				// funcs[identifier](tokens, background);
+
+				if (strcmp(tokens[0], "cd") == 0) 
+				{
+					if (chdir(tokens[1]) != 0) perror("Error");
+					else printf("%s\n", "&&& cd success" );
+				}
+
+				else if (strcmp(tokens[0], "ls") == 0 || strcmp(tokens[0], "echo") == 0 || strcmp(tokens[0], "sleep") == 0 || strcmp(tokens[0], "cat") == 0)
+				{
+					printf("%s\n", "Reached here!" );
+
+					if (fork() == 0)
+					{
+						if (execvp(tokens[0], tokens) != 0) perror("Failure");
+					}
+				}
+
+				j = 2 + identifier%2;
+				// printf("%d\n", j );
+				
+				int i = 0;
+				while(tokens[i] != NULL) 
+					{
+						free(tokens[i]);
+						i = i + 1;
+					}
+
+			// 	printf("%s\n", "Bye" );
+				
+				tokens = &tokens[j];
+				k = k + 1;
+			}
+
+			for (int i = 0; i < k; i++) wait(NULL);
+			
+
+		}
+
+		
+		else if (
 			( ( (strcmp(tokens[0], "cd") == 0) || (strcmp(tokens[0], "echo") == 0) || (strcmp(tokens[0], "cat") == 0) || (strcmp(tokens[0], "sleep") == 0) ) && 
 				(strcmp(tokens[2], "&&") == 0) ) 
 			|| 
@@ -216,7 +262,7 @@ int main(int argc, char* argv[]) {
 			{
 				int identifier = commands_to_int(tokens[0]);
 				tokens[0 + 1 + identifier%2] = NULL;
-				funcs[identifier](tokens);
+				funcs[identifier](tokens, background);
 				//printf("%d\n", commands_to_int(tokens[j]) );
 				j = 2 + identifier%2;
 				int i = 0;
@@ -242,7 +288,14 @@ int main(int argc, char* argv[]) {
 		// 	( (strcmp(tokens[0], "ls") == 0) && (strcmp(tokens[1], "&") == 0) ) 
 		// 	)
 		// {
+		// 	background = 1;
+		// 	int identifier = commands_to_int(tokens[0]);
+		// 	printf("%s\n", "Background mode");
+		// 	funcs[identifier](tokens, background);
+
+		// // 	int i = 0;
 			
+
 		// }
 		// else if (strcmp(tokens[0], "cd") == 0) my_shell_cd(tokens);
 		// else if (strcmp(tokens[0], "ls") == 0) my_shell_ls(tokens);
