@@ -1,0 +1,61 @@
+Produced 0
+Produced 1
+Consumed 0 by worker 2
+Consumed 1 by worker 2
+Produced 2
+Produced 3
+Produced 4
+Consumed 2 by worker 3
+Produced 5
+Consumed 3 by worker 3
+Produced 6
+Consumed 4 by worker 3
+Produced 7
+Consumed 5 by worker 3
+Produced 8
+Consumed 6 by worker 3
+Produced 9
+Consumed 7 by worker 3
+Produced 10
+Consumed 8 by worker 3
+Produced 11
+Consumed 9 by worker 3
+Produced 12
+Consumed 10 by worker 3
+Produced 13
+Consumed 11 by worker 3
+Produced 14
+Consumed 12 by worker 3
+Produced 15
+Consumed 13 by worker 3
+Produced 16
+Consumed 14 by worker 3
+Produced 17
+Consumed 15 by worker 3
+Produced 18
+Consumed 16 by worker 3
+Produced 19
+Consumed 17 by worker 3
+Produced 20
+Consumed 18 by worker 3
+Produced 21
+Consumed 19 by worker 3
+Produced 22
+Consumed 20 by worker 3
+Produced 23
+Consumed 21 by worker 3
+Produced 24
+Consumed 22 by worker 3
+Produced 25
+Consumed 23 by worker 3
+Produced 26
+Consumed 24 by worker 3
+Produced 27
+Consumed 25 by worker 3
+Produced 28
+Consumed 26 by worker 3
+Produced 29
+Consumed 27 by worker 3
+Consumed 28 by worker 3
+Consumed 29 by worker 3
+master joined
